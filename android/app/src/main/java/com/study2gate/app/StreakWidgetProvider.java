@@ -50,7 +50,7 @@ public class StreakWidgetProvider extends AppWidgetProvider {
 
     // Shown immediately on placement, before the first real fetch
     // completes. StreakWidgetWorker overwrites this via
-    // partiallyUpdateAppWidget as soon as real data arrives.
+    // updateAppWidget as soon as real data arrives.
     private void drawPlaceholder(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_streak);
 
@@ -90,14 +90,21 @@ public class StreakWidgetProvider extends AppWidgetProvider {
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        // 30 minutes is WorkManager's own minimum period for periodic
-        // work — matches updatePeriodMillis in widget_streak_info.xml.
+        // 15 minutes is WorkManager's hard platform minimum for periodic
+        // work — it cannot be set any lower. Also update
+        // updatePeriodMillis in widget_streak_info.xml to 900000 to match
+        // (that value only affects the OS's own widget-update nudges;
+        // this PeriodicWorkRequest is what actually does the fetching).
         PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(
-                StreakWidgetWorker.class, 30, TimeUnit.MINUTES)
+                StreakWidgetWorker.class, 15, TimeUnit.MINUTES)
                 .setConstraints(constraints)
                 .build();
 
+        // UPDATE (not KEEP) so that anyone who already has the old
+        // 30-minute schedule enqueued actually picks up this new
+        // interval, instead of WorkManager leaving their old one in
+        // place forever because "a job with this name already exists."
         WorkManager.getInstance(context)
-                .enqueueUniquePeriodicWork(PERIODIC_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request);
+                .enqueueUniquePeriodicWork(PERIODIC_WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, request);
     }
 }
