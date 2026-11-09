@@ -1,15 +1,19 @@
 {
   "files": {
-    "main.css": "/static/css/main.9a04fee7.css",
-    "main.js": "/static/js/main.f32c7820.js",
+    "main.css": "/static/css/main.897258c1.css",
+    "main.js": "/static/js/main.0f7a5cfe.js",
+    "static/js/551.52d09097.chunk.js": "/static/js/551.52d09097.chunk.js",
+    "static/js/842.cecbf811.chunk.js": "/static/js/842.cecbf811.chunk.js",
     "static/media/study2gate-logo.png": "/static/media/study2gate-logo.94f14e915d6d6e2136e0.png",
     "static/media/study2gate-logo-transparent.png": "/static/media/study2gate-logo-transparent.3f78e2e282d0608fbac0.png",
     "index.html": "/index.html",
-    "main.9a04fee7.css.map": "/static/css/main.9a04fee7.css.map",
-    "main.f32c7820.js.map": "/static/js/main.f32c7820.js.map"
+    "main.897258c1.css.map": "/static/css/main.897258c1.css.map",
+    "main.0f7a5cfe.js.map": "/static/js/main.0f7a5cfe.js.map",
+    "551.52d09097.chunk.js.map": "/static/js/551.52d09097.chunk.js.map",
+    "842.cecbf811.chunk.js.map": "/static/js/842.cecbf811.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.9a04fee7.css",
-    "static/js/main.f32c7820.js"
+    "static/css/main.897258c1.css",
+    "static/js/main.0f7a5cfe.js"
   ]
 }

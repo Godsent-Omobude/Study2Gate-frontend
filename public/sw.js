@@ -88,7 +88,7 @@ self.addEventListener("notificationclick", (event) => {
 // anything under /api — those must always hit the network so auth state
 // and live data are never served stale from cache.
 
-const CACHE_NAME = "study2gate-shell-v2";
+const CACHE_NAME = "study2gate-shell-v1";
 const APP_SHELL_URL = "/";
 
 self.addEventListener("install", (event) => {
@@ -119,7 +119,7 @@ self.addEventListener("activate", (event) => {
 });
 
 const isApiRequest = (url) =>
-  url.pathname.startsWith("/api") || url.pathname.startsWith("/socket.io") || url.origin !== self.location.origin;
+  url.pathname.startsWith("/api") || url.origin !== self.location.origin;
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
