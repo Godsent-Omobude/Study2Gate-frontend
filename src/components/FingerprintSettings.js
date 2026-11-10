@@ -51,7 +51,6 @@ export default function FingerprintSettings() {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const enabledHere = Boolean(localDeviceId) && Boolean(devices?.some((device) => device.id === localDeviceId));

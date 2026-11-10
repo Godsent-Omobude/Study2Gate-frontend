@@ -75,11 +75,9 @@ export default function Home() {
           const c = chars[l][i];
           c.classList.add("s2g-on");
           c.after(caret);
-          // eslint-disable-next-line no-await-in-loop
           await sleep(c.textContent === "." ? 110 : 24 + Math.random() * 22);
         }
         if (l < chars.length - 1) {
-          // eslint-disable-next-line no-await-in-loop
           await sleep(230);
           chars[l + 1][0].before(caret);
         }
