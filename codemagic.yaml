@@ -1,0 +1,33 @@
+
+workflows:
+  study2gate-ios:
+    name: Study2Gate iOS Build
+
+    instance_type: mac_mini_m2
+
+    environment:
+      vars:
+        BUNDLE_ID: com.study2gate.app
+        XCODE_WORKSPACE: ios/App/App.xcworkspace
+        XCODE_SCHEME: App
+
+      node: latest
+
+    scripts:
+      - name: Install dependencies
+        script: npm ci
+
+      - name: Build React application
+        script: npm run build
+
+      - name: Synchronize Capacitor
+        script: npx cap sync ios
+
+      - name: Check iOS project
+        script: |
+          ls ios/App
+          xcodebuild -list -workspace "$XCODE_WORKSPACE"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
