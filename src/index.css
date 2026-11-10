@@ -316,7 +316,9 @@ html[data-theme="dark"] select {
     font-size: 18px;
   }
 
-  .study2gate-navbar--native .study2gate-navbar__actions > div:first-child button {
+  /* Direct child only: this must hit the bell's trigger button, not every
+     button inside the notification dropdown (rows, "Mark all read"). */
+  .study2gate-navbar--native .study2gate-navbar__actions > div:first-child > button {
     width: 36px;
     height: 36px;
   }
