@@ -11,7 +11,7 @@ workflows:
         BUNDLE_ID: com.study2gate.app
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
-      node: 20
+      node: 22
       xcode: latest
       cocoapods: default
 
