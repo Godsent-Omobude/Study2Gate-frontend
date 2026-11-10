@@ -1,7 +1,9 @@
 import { useState } from "react";
 import api from "../api/api";
+import useBackClose from "../hooks/useBackClose";
 
 export default function ReportModal({ file, onClose, onSubmitted }) {
+  useBackClose(true, onClose);
   const [complainantName, setComplainantName] = useState("");
   const [complainantEmail, setComplainantEmail] = useState("");
   const [complainantPhone, setComplainantPhone] = useState("");

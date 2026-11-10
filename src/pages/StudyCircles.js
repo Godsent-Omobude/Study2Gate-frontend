@@ -229,7 +229,7 @@ export default function StudyCircles() {
           <button
             type="button"
             onClick={() => setShowCreateForm((v) => !v)}
-            className="rounded-xl bg-accent px-4 py-3 text-sm font-bold text-white shadow-lg shadow-accent-soft hover:bg-accent-hover"
+            className="rounded-xl bg-accent px-4 py-3 text-sm font-bold text-white hover:bg-accent-hover"
           >
             {showCreateForm ? "Cancel" : "+ Create Circle"}
           </button>
@@ -318,7 +318,7 @@ export default function StudyCircles() {
             <button
               type="submit"
               disabled={creating}
-              className="w-fit rounded-xl bg-accent px-5 py-3 text-sm font-black text-white shadow-lg shadow-accent-soft hover:bg-accent-hover disabled:opacity-60"
+              className="w-fit rounded-xl bg-accent px-5 py-3 text-sm font-black text-white hover:bg-accent-hover disabled:opacity-60"
             >
               {creating ? "Creating..." : "Create Circle"}
             </button>

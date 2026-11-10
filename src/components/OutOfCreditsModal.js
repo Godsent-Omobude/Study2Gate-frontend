@@ -1,11 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { Coins } from "lucide-react";
+import useBackClose from "../hooks/useBackClose";
 
 // Same overlay/card structure as ReportModal/DisputeModal, so it matches
 // the app's existing modal design language rather than introducing a new
 // one.
 export default function OutOfCreditsModal({ open, onClose }) {
   const navigate = useNavigate();
+  useBackClose(open, onClose);
 
   if (!open) return null;
 
@@ -42,7 +44,7 @@ export default function OutOfCreditsModal({ open, onClose }) {
           <button
             type="button"
             onClick={goToUpload}
-            className="w-full rounded-xl bg-accent py-3 text-sm font-black text-white shadow-lg shadow-accent-soft hover:bg-accent-hover"
+            className="w-full rounded-xl bg-accent py-3 text-sm font-black text-white hover:bg-accent-hover"
           >
             Upload Document
           </button>

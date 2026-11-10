@@ -4,6 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import PasswordRequirementsChecklist from "../../components/PasswordRequirementsChecklist";
 import { isPasswordValid } from "../../utils/passwordRequirements";
 import { useSettings } from "./SettingsContext";
+import FingerprintSettings from "../../components/FingerprintSettings";
 
 export default function SettingsPassword() {
   const { showMessage, showError, saving, setSaving } = useSettings();
@@ -38,6 +39,8 @@ export default function SettingsPassword() {
   };
 
   return (
+    <>
+    <FingerprintSettings />
     <section className="rounded-3xl bg-white p-6 shadow-sm">
       <h2 className="text-xl font-black text-slate-900">Change password</h2>
       <form onSubmit={changePassword} className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -90,5 +93,6 @@ export default function SettingsPassword() {
         </button>
       </form>
     </section>
+    </>
   );
 }

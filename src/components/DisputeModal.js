@@ -1,7 +1,9 @@
 import { useState } from "react";
 import api from "../api/api";
+import useBackClose from "../hooks/useBackClose";
 
 export default function DisputeModal({ file, onClose, onSubmitted }) {
+  useBackClose(true, onClose);
   const [explanation, setExplanation] = useState("");
   const [ownsWork, setOwnsWork] = useState(false);
   const [hasPermission, setHasPermission] = useState(false);

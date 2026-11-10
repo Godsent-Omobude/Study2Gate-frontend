@@ -69,7 +69,7 @@ export default function EnableNotificationsPrompt({ open, onSkip, onContinue }) 
                 type="button"
                 onClick={handleEnable}
                 disabled={phase === "busy"}
-                className="w-full rounded-xl bg-accent py-3 text-sm font-black text-white shadow-lg shadow-accent-soft hover:bg-accent-hover disabled:opacity-60"
+                className="w-full rounded-xl bg-accent py-3 text-sm font-black text-white hover:bg-accent-hover disabled:opacity-60"
               >
                 {phase === "busy" ? "Requesting..." : "Enable Notifications"}
               </button>
@@ -89,7 +89,7 @@ export default function EnableNotificationsPrompt({ open, onSkip, onContinue }) 
             <button
               type="button"
               onClick={onContinue}
-              className="mt-6 w-full rounded-xl bg-accent py-3 text-sm font-black text-white shadow-lg shadow-accent-soft hover:bg-accent-hover"
+              className="mt-6 w-full rounded-xl bg-accent py-3 text-sm font-black text-white hover:bg-accent-hover"
             >
               Go to notification settings
             </button>

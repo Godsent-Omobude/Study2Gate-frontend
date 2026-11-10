@@ -210,7 +210,7 @@ export default function GenerateFlashcards() {
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-          <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+          <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
             <div className="mb-6">
               <h2 className="text-xl font-black text-slate-900">
                 Generate Flashcards
@@ -225,9 +225,9 @@ export default function GenerateFlashcards() {
                 <label className="text-sm font-bold text-slate-700">
                   1. Upload Document
                 </label>
-                <label className="mt-2 flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-accent-soft bg-accent-soft/40 px-5 text-center transition hover:bg-accent-soft">
+                <label className="mt-2 flex min-h-44 min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-accent-soft bg-accent-soft/40 px-5 text-center transition hover:bg-accent-soft">
                   <Upload className="h-10 w-10 text-accent" strokeWidth={1.75} />
-                  <span className="mt-2 font-bold text-slate-800">
+                  <span className="mt-2 max-w-full break-all font-bold text-slate-800">
                     {document ? document.name : "Click to browse for a document"}
                   </span>
                   <span className="mt-1 text-xs text-slate-500">
@@ -378,7 +378,7 @@ export default function GenerateFlashcards() {
                   pdfInfoLoading ||
                   (isPdf && (!totalPages || !!rangeError))
                 }
-                className="w-full rounded-xl bg-accent px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-accent-soft transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-accent px-5 py-3.5 text-sm font-black text-white transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading
                   ? "Generating..."
@@ -393,7 +393,7 @@ export default function GenerateFlashcards() {
             </form>
           </section>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+          <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
             <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
               <div className="rounded-2xl bg-accent-soft p-5">
                 <FileText className="h-7 w-7 text-accent-hover" />

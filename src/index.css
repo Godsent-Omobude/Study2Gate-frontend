@@ -340,6 +340,19 @@ body,
   max-width: 100%;
 }
 
+/* Android draws the app edge-to-edge, so the gesture bar would otherwise sit
+   on top of the last content on every page. #root owns the bottom inset;
+   full-height wrappers give that space back so short pages don't scroll. */
+#root {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+#root .min-h-screen {
+  min-height: calc(100vh - env(safe-area-inset-bottom, 0px));
+}
+
+/* Safety net only: it clips stray horizontal overflow instead of letting the
+   page scroll sideways. It also hides the cause, so use the overflow detector
+   (src/utils/overflowDebug.js) to find and fix offenders at the source. */
 html {
   overflow-x: hidden;
 }

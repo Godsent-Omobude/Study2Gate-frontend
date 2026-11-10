@@ -238,7 +238,7 @@ export default function Materials() {
                       )}
                     </div>
 
-                    <h3 className="mt-3 font-bold text-slate-900">
+                    <h3 className="mt-3 break-words font-bold text-slate-900">
                       {file.title || filename}
                     </h3>
 

@@ -46,11 +46,11 @@ export default function Navbar({ onMenuOpen, children }) {
               alt={`${userName}'s profile`}
               title={userName}
               aria-label={`Logged in as ${userName}`}
-              className="study2gate-navbar__profile h-11 w-11 shrink-0 rounded-full object-cover shadow-md shadow-accent-soft ring-4 ring-accent-soft"
+              className="study2gate-navbar__profile h-11 w-11 shrink-0 rounded-full object-cover ring-4 ring-accent-soft"
             />
           ) : (
             <div
-              className="study2gate-navbar__profile flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent text-base font-black text-white shadow-md shadow-accent-soft ring-4 ring-accent-soft"
+              className="study2gate-navbar__profile flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent text-base font-black text-white ring-4 ring-accent-soft"
               title={userName}
               aria-label={`Logged in as ${userName}`}
             >

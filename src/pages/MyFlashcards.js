@@ -114,7 +114,7 @@ export default function MyFlashcards() {
             )}
             <Link
               to="/generate-flashcards"
-              className="rounded-xl bg-accent px-4 py-3 text-sm font-bold text-white shadow-lg shadow-accent-soft hover:bg-accent-hover"
+              className="rounded-xl bg-accent px-4 py-3 text-sm font-bold text-white hover:bg-accent-hover"
             >
               + Generate New Set
             </Link>

@@ -94,7 +94,7 @@ export default function AppUpdatePrompt() {
             <button
               type="button"
               onClick={() => openUpdateLink(downloadUrl)}
-              className="w-full rounded-xl bg-accent py-3 text-sm font-black text-white shadow-lg shadow-accent-soft hover:bg-accent-hover"
+              className="w-full rounded-xl bg-accent py-3 text-sm font-black text-white hover:bg-accent-hover"
             >
               Update now
             </button>

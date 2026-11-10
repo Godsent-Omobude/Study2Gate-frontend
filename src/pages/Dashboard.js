@@ -617,7 +617,7 @@ export default function Dashboard() {
               <button
                 type="submit"
                 disabled={!copyrightConfirmed || isUploading}
-                className="w-full rounded-xl bg-accent py-3 text-sm font-black text-white shadow-lg shadow-accent-soft hover:bg-accent-hover disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-accent py-3 text-sm font-black text-white hover:bg-accent-hover disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isUploading && (
                   <span
@@ -768,7 +768,7 @@ export default function Dashboard() {
                       )}
                     </div>
 
-                    <h3 className="mt-3 font-bold text-slate-900">
+                    <h3 className="mt-3 break-words font-bold text-slate-900">
                       {file.title || filename}
                     </h3>
 

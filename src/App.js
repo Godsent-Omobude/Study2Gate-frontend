@@ -23,6 +23,8 @@ import AdminFiles from "./pages/admin/AdminFiles";
 import AdminCopyright from "./pages/admin/AdminCopyright";
 import AdminDeveloper from "./pages/admin/AdminDeveloper";
 import Sidebar from "./components/Sidebar";
+import NativeBackButton from "./components/NativeBackButton";
+import useBackClose from "./hooks/useBackClose";
 import Navbar from "./components/Navbar";
 import SettingsLayout from "./pages/settings/SettingsLayout";
 import SettingsHome from "./pages/settings/SettingsHome";
@@ -49,6 +51,7 @@ import AppUpdatePrompt from "./components/AppUpdatePrompt";
 
 function ProtectedLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  useBackClose(sidebarOpen, () => setSidebarOpen(false));
 
   return (
     <ProtectedRoute>
@@ -152,6 +155,7 @@ export default function App() {
       <Analytics />
       <AppearanceManager />
       <SessionGuard />
+      <NativeBackButton />
       <AppUpdatePrompt />
       <Routes>
         <Route path="/login" element={<Login />} />

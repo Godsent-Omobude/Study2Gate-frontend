@@ -296,7 +296,7 @@ export default function Register() {
                   !isPasswordValid(password) ||
                   !agreedToPrivacy
                 }
-                className="flex w-full items-center justify-center rounded-xl bg-accent py-3.5 text-sm font-black text-white shadow-lg shadow-accent-soft transition hover:bg-accent-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex w-full items-center justify-center rounded-xl bg-accent py-3.5 text-sm font-black text-white transition hover:bg-accent-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? <EqualizerLoader label="Creating account…" /> : "Create Account"}
               </button>

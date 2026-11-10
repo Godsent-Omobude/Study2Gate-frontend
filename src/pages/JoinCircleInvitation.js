@@ -112,7 +112,7 @@ export default function JoinCircleInvitation() {
               type="button"
               onClick={handleJoin}
               disabled={joining}
-              className="mt-6 w-full rounded-xl bg-accent px-5 py-3 text-sm font-black text-white shadow-lg shadow-accent-soft disabled:opacity-60"
+              className="mt-6 w-full rounded-xl bg-accent px-5 py-3 text-sm font-black text-white disabled:opacity-60"
             >
               {joining ? "Joining..." : `Join ${preview.circle.name}`}
             </button>

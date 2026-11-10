@@ -5,9 +5,11 @@ import api from "../api/api";
 import { disconnectStudySocket } from "../api/socket";
 import usePushMessaging from "../hooks/usePushMessaging";
 import useProfilePicture from "../hooks/useProfilePicture";
+import useBackClose from "../hooks/useBackClose";
 import { unregisterPushDevice } from "../api/pushNotifications";
 import { revokeLocalToken, isNativePushAvailable } from "../firebase/messaging";
 import { clearWidgetToken } from "../native/widgetToken";
+import { clearLocalStorageKeepingFingerprint } from "../native/biometric";
 import study2gateLogo from "../assets/study2gate-logo.png";
 const navItems = [
   { to: "/", label: "Dashboard", icon: "home", end: true },
@@ -56,6 +58,7 @@ export default function Sidebar({ open, onClose }) {
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  useBackClose(showLogoutConfirm && !loggingOut, () => setShowLogoutConfirm(false));
 
   const logout = () => {
     setLoggingOut(true);
@@ -82,7 +85,9 @@ export default function Sidebar({ open, onClose }) {
       // state. Close it before leaving the authenticated area so the old
       // session cannot continue receiving real-time events after logout.
       disconnectStudySocket();
-      localStorage.clear();
+      // Keeps the "fingerprint is set up on this phone" hint so the Login
+      // page can still offer it after signing out.
+      clearLocalStorageKeepingFingerprint();
       navigate("/login");
     });
   };
@@ -133,7 +138,7 @@ export default function Sidebar({ open, onClose }) {
                 className="h-12 w-12 rounded-2xl object-cover ring-2 ring-accent-soft"
               />
             ) : (
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-lg font-black text-white shadow-lg shadow-accent-soft">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-lg font-black text-white">
                 {(fullName[0] || "S").toUpperCase()}
               </div>
             )}
@@ -223,7 +228,7 @@ export default function Sidebar({ open, onClose }) {
           </NavLink>
         </nav>
 
-        <div className="border-t border-slate-100 p-4">
+        <div className="border-t border-slate-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
           <div className="mb-3 rounded-2xl border border-accent-soft bg-accent-soft p-4">
             <p className="text-xs font-black text-slate-800">Study smarter 🚀</p>
             <p className="mt-1 text-[11px] leading-4 text-slate-500">

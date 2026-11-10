@@ -142,7 +142,7 @@ export default function VerifyEmail() {
             <button
               type="submit"
               disabled={loading || code.length !== 6}
-              className="w-full rounded-xl bg-accent py-3.5 text-sm font-black text-white shadow-lg shadow-accent-soft hover:bg-accent-hover disabled:opacity-60"
+              className="w-full rounded-xl bg-accent py-3.5 text-sm font-black text-white hover:bg-accent-hover disabled:opacity-60"
             >
               {loading ? "Verifying..." : "Verify Email"}
             </button>
