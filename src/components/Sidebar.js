@@ -103,8 +103,8 @@ export default function Sidebar({ open, onClose }) {
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="relative flex h-[76px] items-center gap-3 border-b border-slate-100 px-5">
-          <div className="logo-mark flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg shadow-violet-200">
+        <div className="relative flex h-[calc(76px+env(safe-area-inset-top,0px))] items-center gap-3 border-b border-slate-100 px-5 pt-[env(safe-area-inset-top,0px)]">
+          <div className="logo-mark flex h-10 w-10 items-center justify-center rounded-xl bg-white">
             <img
               src={study2gateLogo}
               alt="Study2Gate logo"

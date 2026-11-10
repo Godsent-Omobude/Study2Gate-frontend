@@ -1,6 +1,17 @@
 import React from "react";
+import { Capacitor } from "@capacitor/core";
 import { Menu } from "lucide-react";
 import useProfilePicture from "../hooks/useProfilePicture";
+
+// The compact "--native" layout (see index.css) only applies inside the
+// Capacitor app; the website and PWA keep the regular spacious navbar.
+const isNativeApp = (() => {
+  try {
+    return Capacitor.isNativePlatform();
+  } catch {
+    return false;
+  }
+})();
 
 export default function Navbar({ onMenuOpen, children }) {
   const userName = localStorage.getItem("fullName") || "Student";
@@ -8,7 +19,7 @@ export default function Navbar({ onMenuOpen, children }) {
   const profilePictureUrl = useProfilePicture();
 
   return (
-    <nav className="study2gate-navbar sticky top-0 z-30 h-[72px] border-b border-slate-200/90 bg-white/95 px-4 shadow-[0_1px_12px_rgba(15,23,42,0.05)] backdrop-blur sm:px-6">
+    <nav className={`study2gate-navbar${isNativeApp ? " study2gate-navbar--native" : ""} sticky top-0 z-30 h-[calc(72px+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] border-b border-slate-200/90 bg-white/95 px-4 shadow-[0_1px_12px_rgba(15,23,42,0.05)] backdrop-blur sm:px-6`}>
       <div className="study2gate-navbar__inner mx-auto flex h-full w-full min-w-0 items-center justify-between">
         <div className="study2gate-navbar__brand-group flex min-w-0 items-center gap-3">
           <button
@@ -21,7 +32,7 @@ export default function Navbar({ onMenuOpen, children }) {
             <Menu className="h-[25px] w-[25px] transition group-hover:scale-95" strokeWidth={2} />
           </button>
 
-          <div className="study2gate-navbar__brand min-w-0 truncate text-[25px] font-black tracking-[-0.04em] text-accent sm:text-[28px]">
+          <div className="study2gate-navbar__brand min-w-0 truncate whitespace-nowrap text-[25px] font-black tracking-[-0.04em] text-accent sm:text-[28px]">
             Study2Gate
           </div>
         </div>
