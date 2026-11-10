@@ -58,7 +58,7 @@ workflows:
       - name: Compile iOS (unsigned)
         script: |
           xcodebuild build \
-            -workspace "$XCODE_WORKSPACE" \
+            -project ios/App/App.xcodeproj \
             -scheme "$XCODE_SCHEME" \
             -configuration Release \
             -sdk iphoneos \
