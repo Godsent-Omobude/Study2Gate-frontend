@@ -1,21 +1,53 @@
-
 workflows:
   study2gate-ios:
-    name: Study2Gate iOS Build
-
+    name: Study2Gate iOS Build (unsigned)
     instance_type: mac_mini_m2
+    max_build_duration: 60
 
     environment:
+      groups:
+        - firebase
       vars:
         BUNDLE_ID: com.study2gate.app
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
+      node: 20
+      xcode: latest
+      cocoapods: default
 
-      node: latest
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
 
     scripts:
       - name: Install dependencies
         script: npm ci
+
+      - name: Check Firebase environment
+        script: |
+          MISSING=0
+          for VAR in \
+            REACT_APP_FIREBASE_API_KEY \
+            REACT_APP_FIREBASE_AUTH_DOMAIN \
+            REACT_APP_FIREBASE_PROJECT_ID \
+            REACT_APP_FIREBASE_STORAGE_BUCKET \
+            REACT_APP_FIREBASE_MESSAGING_SENDER_ID \
+            REACT_APP_FIREBASE_APP_ID
+          do
+            if [ -n "$(printenv "$VAR")" ]; then
+              echo "$VAR is available"
+            else
+              echo "$VAR is MISSING"
+              MISSING=1
+            fi
+          done
+          if [ "$MISSING" -eq 1 ]; then
+            echo "Fix the 'firebase' variable group before building."
+            exit 1
+          fi
 
       - name: Build React application
         script: npm run build
@@ -23,11 +55,23 @@ workflows:
       - name: Synchronize Capacitor
         script: npx cap sync ios
 
-      - name: Check iOS project
+      - name: Compile iOS (unsigned)
         script: |
-          ls ios/App
-          xcodebuild -list -workspace "$XCODE_WORKSPACE"
+          xcodebuild build \
+            -workspace "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build/dd \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package unsigned ipa
+        script: |
+          mkdir -p Payload
+          cp -R build/dd/Build/Products/Release-iphoneos/App.app Payload/
+          zip -r Study2Gate-unsigned.ipa Payload
 
     artifacts:
-      - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
+      - Study2Gate-unsigned.ipa
