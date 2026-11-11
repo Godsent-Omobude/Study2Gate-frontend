@@ -29,7 +29,7 @@ workflows:
       - name: Restore google-services.json (gitignored)
         script: |
           if [ -z "$GOOGLE_SERVICES_JSON" ]; then
-            echo "GOOGLE_SERVICES_JSON is not set - add it to the study2gate_env group." >&2
+            echo "GOOGLE_SERVICES_JSON is not set - add it to the firebase group." >&2
             exit 1
           fi
           echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
