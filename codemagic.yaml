@@ -1,77 +1,86 @@
 workflows:
-  study2gate-ios:
-    name: Study2Gate iOS Build (unsigned)
-    instance_type: mac_mini_m2
+  android-release:
+    name: Study2Gate Android (signed APK)
+    instance_type: linux_x2
     max_build_duration: 60
 
     environment:
+      # Variable group created in Codemagic (Teams > Global variables and
+      # secrets, or the app's Environment variables tab). It should hold:
+      #   - every REACT_APP_* value from your .env
+      #   - GOOGLE_SERVICES_JSON  (base64 of android/app/google-services.json, secure)
       groups:
-        - firebase
-      vars:
-        BUNDLE_ID: com.study2gate.app
-        XCODE_WORKSPACE: ios/App/App.xcworkspace
-        XCODE_SCHEME: App
+        - study2gate_env
+      # Capacitor 8 needs a recent Node and JDK. If Capacitor's docs list
+      # different minimums for your exact version, change these two lines.
       node: 22
-      xcode: latest
-      cocoapods: default
+      java: 21
+      vars:
+        # Create React App turns lint warnings into build errors when CI=true.
+        CI: "false"
 
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: main
-          include: true
+      # Name of the keystore you upload in Codemagic under
+      # Teams > Code signing identities > Android keystores. Codemagic then
+      # provides CM_KEYSTORE_PATH, CM_KEYSTORE_PASSWORD, CM_KEY_ALIAS and
+      # CM_KEY_PASSWORD to the scripts below.
+      android_signing:
+        - study2gate_keystore
 
     scripts:
       - name: Install dependencies
         script: npm ci
 
-      - name: Check Firebase environment
+      - name: Restore google-services.json (gitignored)
         script: |
-          MISSING=0
-          for VAR in \
-            REACT_APP_FIREBASE_API_KEY \
-            REACT_APP_FIREBASE_AUTH_DOMAIN \
-            REACT_APP_FIREBASE_PROJECT_ID \
-            REACT_APP_FIREBASE_STORAGE_BUCKET \
-            REACT_APP_FIREBASE_MESSAGING_SENDER_ID \
-            REACT_APP_FIREBASE_APP_ID
-          do
-            if [ -n "$(printenv "$VAR")" ]; then
-              echo "$VAR is available"
-            else
-              echo "$VAR is MISSING"
-              MISSING=1
-            fi
-          done
-          if [ "$MISSING" -eq 1 ]; then
-            echo "Fix the 'firebase' variable group before building."
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "GOOGLE_SERVICES_JSON is not set - add it to the study2gate_env group." >&2
+            exit 1
+          fi
+          echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+
+      - name: Build web app and sync to Android
+        script: |
+          npm run build
+          npx cap sync android
+
+      - name: Build release APK
+        script: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Align and sign APK
+        script: |
+          set -e
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          BUILD_TOOLS="$(ls -d "$SDK"/build-tools/*/ | sort -V | tail -1)"
+
+          # Gradle leaves the APK unsigned unless build.gradle has its own
+          # signingConfig, so find whichever one it produced.
+          APK_IN="$(find android/app/build/outputs/apk/release -name '*.apk' | head -1)"
+          if [ -z "$APK_IN" ]; then
+            echo "No release APK found." >&2
             exit 1
           fi
 
-      - name: Build React application
-        script: npm run build
-
-      - name: Synchronize Capacitor
-        script: npx cap sync ios
-
-      - name: Compile iOS (unsigned)
-        script: |
-          xcodebuild build \
-            -project ios/App/App.xcodeproj \
-            -scheme "$XCODE_SCHEME" \
-            -configuration Release \
-            -sdk iphoneos \
-            -derivedDataPath build/dd \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-
-      - name: Package unsigned ipa
-        script: |
-          mkdir -p Payload
-          cp -R build/dd/Build/Products/Release-iphoneos/App.app Payload/
-          zip -r Study2Gate-unsigned.ipa Payload
+          mkdir -p build-output
+          "${BUILD_TOOLS}zipalign" -p -f 4 "$APK_IN" build-output/study2gate-aligned.apk
+          "${BUILD_TOOLS}apksigner" sign \
+            --ks "$CM_KEYSTORE_PATH" \
+            --ks-pass "pass:$CM_KEYSTORE_PASSWORD" \
+            --ks-key-alias "$CM_KEY_ALIAS" \
+            --key-pass "pass:$CM_KEY_PASSWORD" \
+            --out build-output/study2gate.apk \
+            build-output/study2gate-aligned.apk
+          "${BUILD_TOOLS}apksigner" verify --print-certs build-output/study2gate.apk
 
     artifacts:
-      - Study2Gate-unsigned.ipa
+      - build-output/study2gate.apk
+
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
+        notify:
+          success: true
+          failure: true
