@@ -9,4 +9,3 @@ android/captures
 android/.ideal
 android/*.iml
 android/app/release
-android/app/google-services.json

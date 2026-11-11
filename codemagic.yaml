@@ -5,6 +5,9 @@ workflows:
     max_build_duration: 60
 
     environment:
+      # Variable group created in Codemagic. It should hold every
+      # REACT_APP_* value required by your application. Firebase's
+      # google-services.json is committed at android/app/google-services.json.
       groups:
         - firebase
       # Capacitor 8 needs a recent Node and JDK. If Capacitor's docs list
@@ -26,13 +29,19 @@ workflows:
       - name: Install dependencies
         script: npm ci
 
-      - name: Restore google-services.json (gitignored)
+      - name: Validate Firebase configuration
         script: |
-          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
-            echo "GOOGLE_SERVICES_JSON is not set - add it to the firebase group." >&2
+          set -euo pipefail
+          FIREBASE_CONFIG="android/app/google-services.json"
+
+          if [ ! -f "$FIREBASE_CONFIG" ]; then
+            echo "Firebase configuration missing: $FIREBASE_CONFIG" >&2
+            echo "Commit google-services.json to the GitHub repository at android/app/google-services.json." >&2
             exit 1
           fi
-          echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+
+          python3 -m json.tool "$FIREBASE_CONFIG" > /dev/null
+          echo "Firebase configuration exists and contains valid JSON."
 
       - name: Build web app and sync to Android
         script: |
