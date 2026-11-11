@@ -5,12 +5,8 @@ workflows:
     max_build_duration: 60
 
     environment:
-      # Variable group created in Codemagic (Teams > Global variables and
-      # secrets, or the app's Environment variables tab). It should hold:
-      #   - every REACT_APP_* value from your .env
-      #   - GOOGLE_SERVICES_JSON  (base64 of android/app/google-services.json, secure)
       groups:
-        - study2gate_env
+        - firebase
       # Capacitor 8 needs a recent Node and JDK. If Capacitor's docs list
       # different minimums for your exact version, change these two lines.
       node: 22
