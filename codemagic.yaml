@@ -26,7 +26,7 @@ workflows:
       - name: Install dependencies
         script: npm ci
 
-        - name: Restore google-services.json (gitignored)
+      - name: Restore google-services.json (gitignored)
         script: |
           set -e
           mkdir -p android/app
