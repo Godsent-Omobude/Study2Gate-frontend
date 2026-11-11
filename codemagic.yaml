@@ -28,18 +28,11 @@ workflows:
 
       - name: Restore google-services.json (gitignored)
         script: |
-          set -e
-          mkdir -p android/app
-          printf '%s' "$GOOGLE_SERVICES_JSON" | tr -d '[:space:]' > /tmp/gs.b64
-          if base64 --decode < /tmp/gs.b64 > /tmp/gs.json 2>/dev/null && python3 -c "import json;json.load(open('/tmp/gs.json'))" 2>/dev/null; then
-            cp /tmp/gs.json android/app/google-services.json
-          elif printf '%s' "$GOOGLE_SERVICES_JSON" | python3 -c "import json,sys;json.load(sys.stdin)" 2>/dev/null; then
-            printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
-          else
-            echo "GOOGLE_SERVICES_JSON is not valid base64 of the JSON, nor raw JSON. Re-create the variable." >&2
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "GOOGLE_SERVICES_JSON is not set - add it to the firebase group." >&2
             exit 1
           fi
-          python3 -c "import json;d=json.load(open('android/app/google-services.json'));print('package names:',[c['client_info']['android_client_info']['package_name'] for c in d['client']])"
+          echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
 
       - name: Build web app and sync to Android
         script: |
