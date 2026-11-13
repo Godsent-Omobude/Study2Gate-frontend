@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Users, Upload, ArrowRight, Sparkles, FileText } from "lucide-react";
 import api from "../api/api";
@@ -8,6 +8,21 @@ const isPdfFile = (file) =>
   !!file &&
   (file.type === "application/pdf" ||
     file.name?.toLowerCase().endsWith(".pdf"));
+
+// Render's free tier can take a while to wake up, so give the page-count
+// check room — but never let it spin forever.
+const PDF_INFO_TIMEOUT_MS = 60000;
+
+const pdfInfoErrorMessage = (err) => {
+  if (err.response?.data?.message) return err.response.data.message;
+  if (err.code === "ECONNABORTED") {
+    return "Checking the PDF took too long. Check your connection and try again.";
+  }
+  if (!err.response) {
+    return "Couldn't reach Study2Gate. Check your internet connection and try again.";
+  }
+  return "Unable to read this PDF's page count. Please try again or choose another file.";
+};
 
 export default function GenerateFlashcards() {
   const [searchParams] = useSearchParams();
@@ -27,6 +42,10 @@ export default function GenerateFlashcards() {
   // or until the PDF has been analysed.
   const [totalPages, setTotalPages] = useState(null);
   const [pdfInfoLoading, setPdfInfoLoading] = useState(false);
+  const [pdfInfoFailed, setPdfInfoFailed] = useState(false);
+  // Counts page-count checks so a slow reply for an old file can't overwrite
+  // the page count of the file that is selected now.
+  const analysisRequestRef = useRef(0);
   const [startPage, setStartPage] = useState("");
   const [endPage, setEndPage] = useState("");
   const [rangeError, setRangeError] = useState("");
@@ -78,17 +97,13 @@ export default function GenerateFlashcards() {
     return "";
   };
 
-  const handleFileChange = async (file) => {
-    setDocument(file);
-    setTotalPages(null);
-    setStartPage("");
-    setEndPage("");
-    setRangeError("");
-    setError("");
+  const analysePdf = async (file) => {
+    analysisRequestRef.current += 1;
+    const requestId = analysisRequestRef.current;
+    const isStale = () => requestId !== analysisRequestRef.current;
 
-    if (!file || !isPdfFile(file)) {
-      return;
-    }
+    setError("");
+    setPdfInfoFailed(false);
 
     const infoFormData = new FormData();
     infoFormData.append("document", file);
@@ -97,7 +112,10 @@ export default function GenerateFlashcards() {
       setPdfInfoLoading(true);
       const response = await api.post("/ai/pdf-info", infoFormData, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: PDF_INFO_TIMEOUT_MS,
       });
+
+      if (isStale()) return;
 
       const pages = response.data?.totalPages;
       if (pages) {
@@ -108,13 +126,32 @@ export default function GenerateFlashcards() {
         setEndPage(String(pages));
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Unable to read this PDF's page count. Please try another file."
-      );
+      if (isStale()) return;
+      setPdfInfoFailed(true);
+      setError(pdfInfoErrorMessage(err));
     } finally {
-      setPdfInfoLoading(false);
+      if (!isStale()) setPdfInfoLoading(false);
     }
+  };
+
+  const handleFileChange = (file) => {
+    // Any check still running belongs to the previous file — drop it.
+    analysisRequestRef.current += 1;
+
+    setDocument(file);
+    setTotalPages(null);
+    setStartPage("");
+    setEndPage("");
+    setRangeError("");
+    setError("");
+    setPdfInfoFailed(false);
+    setPdfInfoLoading(false);
+
+    if (!file || !isPdfFile(file)) {
+      return;
+    }
+
+    analysePdf(file);
   };
 
   const handleStartPageChange = (value) => {
@@ -250,6 +287,15 @@ export default function GenerateFlashcards() {
                       ? `This PDF has ${totalPages} pages.`
                       : null}
                   </p>
+                )}
+                {isPdf && !pdfInfoLoading && !totalPages && pdfInfoFailed && (
+                  <button
+                    type="button"
+                    onClick={() => analysePdf(document)}
+                    className="mt-2 text-xs font-bold text-accent underline hover:text-accent-hover"
+                  >
+                    Try again
+                  </button>
                 )}
               </div>
 

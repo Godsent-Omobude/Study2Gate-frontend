@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: "/admin/users", icon: "users", label: "User Management" },
   { to: "/admin/files", icon: "folder", label: "File Management" },
   { to: "/admin/copyright", icon: "shield", label: "Copyright Review" },
+  { to: "/admin/announcements", icon: "megaphone", label: "Announcements" },
   { to: "/admin/developer", icon: "settings", label: "Developer Controls" },
 ];
 

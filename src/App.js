@@ -22,6 +22,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminFiles from "./pages/admin/AdminFiles";
 import AdminCopyright from "./pages/admin/AdminCopyright";
 import AdminDeveloper from "./pages/admin/AdminDeveloper";
+import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
 import Sidebar from "./components/Sidebar";
 import NativeBackButton from "./components/NativeBackButton";
 import useBackClose from "./hooks/useBackClose";
@@ -48,6 +49,7 @@ import { applyDynamicManifest } from "./pwa/dynamicManifest";
 import { resolveTheme } from "./utils/theme";
 import SessionGuard from "./components/SessionGuard";
 import AppUpdatePrompt from "./components/AppUpdatePrompt";
+import AnnouncementPopup from "./components/AnnouncementPopup";
 
 function ProtectedLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -69,6 +71,8 @@ function ProtectedLayout({ children }) {
 
           {children}
         </div>
+
+        <AnnouncementPopup />
       </div>
     </ProtectedRoute>
   );
@@ -281,6 +285,7 @@ export default function App() {
           <Route path="users" element={<AdminUsers />} />
           <Route path="files" element={<AdminFiles />} />
           <Route path="copyright" element={<AdminCopyright />} />
+          <Route path="announcements" element={<AdminAnnouncements />} />
           <Route path="developer" element={<AdminDeveloper />} />
         </Route>
 

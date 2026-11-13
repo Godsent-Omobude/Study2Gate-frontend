@@ -10,6 +10,7 @@ import {
   Lock,
   Globe,
   Database,
+  Megaphone,
 } from "lucide-react";
 import { UsersIcon, AdminShieldIcon, FilesIcon, FlashcardsIcon } from "../../components/icons/AdminIcons";
 
@@ -29,6 +30,7 @@ const LUCIDE_ICONS = {
   lock: Lock,
   globe: Globe,
   database: Database,
+  megaphone: Megaphone,
 };
 
 export function Icon({ name, className = "h-5 w-5" }) {
