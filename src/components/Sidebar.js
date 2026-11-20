@@ -10,6 +10,7 @@ import { unregisterPushDevice } from "../api/pushNotifications";
 import { revokeLocalToken, isNativePushAvailable } from "../firebase/messaging";
 import { clearWidgetToken } from "../native/widgetToken";
 import { clearLocalStorageKeepingFingerprint } from "../native/biometric";
+import { clearFlashcardCache } from "../utils/flashcardCache";
 import study2gateLogo from "../assets/study2gate-logo.png";
 const navItems = [
   { to: "/", label: "Dashboard", icon: "home", end: true },
@@ -87,6 +88,8 @@ export default function Sidebar({ open, onClose }) {
       disconnectStudySocket();
       // Keeps the "fingerprint is set up on this phone" hint so the Login
       // page can still offer it after signing out.
+      // Signing out also removes the flashcards saved on this phone.
+      clearFlashcardCache();
       clearLocalStorageKeepingFingerprint();
       navigate("/login");
     });

@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check, FileText, PartyPopper } from "lucide-react";
 import api from "../api/api";
+import {
+  FLASHCARD_REQUEST_TIMEOUT_MS,
+  buildOfflineStudyAll,
+  isOfflineError,
+  refreshFlashcardCache,
+} from "../utils/flashcardCache";
 
 const RATINGS = [
   { key: "again", label: "Again", hint: "< 1 min", className: "bg-red-50 text-red-700 hover:bg-red-100 border-red-200" },
@@ -19,6 +25,10 @@ export default function StudyAll() {
   const [dueCount, setDueCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  // True when this deck was rebuilt from the cards saved on this phone.
+  const [offline, setOffline] = useState(false);
+  // Ratings that couldn't be saved because there was no connection.
+  const [unsavedCount, setUnsavedCount] = useState(0);
 
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
@@ -33,20 +43,37 @@ export default function StudyAll() {
       setIndex(0);
       setRevealed(false);
       setReviewed(0);
+      setUnsavedCount(0);
       setFinished(false);
 
       const response = await api.get("/ai/flashcards/study-all", {
         params: { dueOnly: nextDueOnly ? "true" : "false" },
+        timeout: FLASHCARD_REQUEST_TIMEOUT_MS,
       });
 
       setCards(response.data?.flashcards || []);
       setTotalCount(response.data?.totalCount || 0);
       setDueCount(response.data?.dueCount || 0);
+      setOffline(false);
+
+      // Keep the copy saved on this phone current (due dates change as you
+      // review), so Study All still works next time there's no connection.
+      refreshFlashcardCache();
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Unable to build your study session."
-      );
+      // No connection: rebuild the deck from the cards saved on this phone.
+      const saved = isOfflineError(err) ? await buildOfflineStudyAll(nextDueOnly) : null;
+
+      if (saved) {
+        setCards(saved.flashcards);
+        setTotalCount(saved.totalCount);
+        setDueCount(saved.dueCount);
+        setOffline(true);
+      } else {
+        setError(
+          err.response?.data?.message ||
+            "Unable to build your study session."
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -78,12 +105,19 @@ export default function StudyAll() {
 
     try {
       setSubmitting(true);
-      await api.post(
-        `/ai/flashcards/${currentCard.flashcardSetId}/cards/${currentCard.id}/review`,
-        { rating }
-      );
 
-      setReviewed((count) => count + 1);
+      try {
+        await api.post(
+          `/ai/flashcards/${currentCard.flashcardSetId}/cards/${currentCard.id}/review`,
+          { rating }
+        );
+        setReviewed((count) => count + 1);
+      } catch (saveError) {
+        // A real server reply (an error) still stops here as before. With no
+        // connection at all, carry on studying — the rating just isn't saved.
+        if (saveError.response) throw saveError;
+        setUnsavedCount((count) => count + 1);
+      }
 
       if (rating === "again") {
         // Reinsert this card a few positions ahead instead of dropping it
@@ -166,6 +200,13 @@ export default function StudyAll() {
           </p>
         )}
 
+        {offline && (
+          <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-800">
+            Can't reach Study2Gate — using your flashcards saved on this phone. Your ratings
+            won't be saved until you're back online.
+          </div>
+        )}
+
         {error && (
           <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">
             {error}
@@ -197,8 +238,11 @@ export default function StudyAll() {
             <PartyPopper className="mx-auto h-8 w-8 text-emerald-600" />
             <h2 className="mt-2 text-xl font-black text-slate-900">Deck complete</h2>
             <p className="mt-1 text-sm text-slate-600">
-              You reviewed {reviewed} of {cards.length} cards. Each rating updated that
-              card's next review date.
+              {unsavedCount > 0
+                ? `You went through ${cards.length} cards. ${unsavedCount} rating${
+                    unsavedCount === 1 ? " wasn't" : "s weren't"
+                  } saved because there was no connection, so those review dates are unchanged.`
+                : `You reviewed ${reviewed} of ${cards.length} cards. Each rating updated that card's next review date.`}
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-3">
               <button

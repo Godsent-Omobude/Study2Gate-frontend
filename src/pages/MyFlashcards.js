@@ -5,6 +5,15 @@ import { FlashcardsIcon } from "../components/icons/AdminIcons";
 import api from "../api/api";
 import FlashcardList from "../components/FlashcardList";
 import FlashcardSetCard from "../components/FlashcardSetCard";
+import {
+  FLASHCARD_REQUEST_TIMEOUT_MS,
+  cacheFlashcardList,
+  cacheFlashcardSet,
+  getCachedFlashcardList,
+  getCachedFlashcardSet,
+  isOfflineError,
+  removeCachedFlashcardSet,
+} from "../utils/flashcardCache";
 
 export default function MyFlashcards() {
   const { id } = useParams();
@@ -12,19 +21,38 @@ export default function MyFlashcards() {
   const [selectedSet, setSelectedSet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  // True when what's on screen is the copy saved on this phone because the
+  // server couldn't be reached.
+  const [offline, setOffline] = useState(false);
 
   const loadSets = async () => {
-    try {
-      setLoading(true);
-      setError("");
+    setError("");
 
+    // Show the saved copy straight away so the list opens instantly, even on
+    // a weak connection, then quietly replace it with fresh data.
+    const cached = await getCachedFlashcardList();
+    if (cached) {
+      setSets(cached);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+
+    try {
       const response = await api.get("/ai/flashcards");
-      setSets(response.data?.flashcardSets || []);
+      const list = response.data?.flashcardSets || [];
+      setSets(list);
+      setOffline(false);
+      cacheFlashcardList(list);
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Unable to load your saved flashcards."
-      );
+      if (cached) {
+        setOffline(true);
+      } else {
+        setError(
+          err.response?.data?.message ||
+            "Unable to load your saved flashcards."
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -33,9 +61,25 @@ export default function MyFlashcards() {
   const loadSet = async (setId) => {
     try {
       setError("");
-      const response = await api.get(`/ai/flashcards/${setId}`);
-      setSelectedSet(response.data?.flashcardSet || null);
+      const response = await api.get(`/ai/flashcards/${setId}`, {
+        timeout: FLASHCARD_REQUEST_TIMEOUT_MS,
+      });
+      const flashcardSet = response.data?.flashcardSet || null;
+      setSelectedSet(flashcardSet);
+      setOffline(false);
+      if (flashcardSet) cacheFlashcardSet(flashcardSet);
     } catch (err) {
+      // No connection: open the copy saved on this phone, if there is one.
+      const cached = isOfflineError(err) ? await getCachedFlashcardSet(setId) : null;
+      if (cached) {
+        setSelectedSet(cached);
+        setOffline(true);
+        return;
+      }
+
+      // The set no longer exists on the server, so drop any saved copy.
+      if (err.response?.status === 404) removeCachedFlashcardSet(setId);
+
       setError(
         err.response?.data?.message ||
           "Unable to open this flashcard set."
@@ -64,6 +108,7 @@ export default function MyFlashcards() {
 
     try {
       await api.delete(`/ai/flashcards/${setId}`);
+      removeCachedFlashcardSet(setId);
       setSets((current) => current.filter((set) => set.id !== setId));
 
       if (selectedSet?.id === setId) {
@@ -124,6 +169,12 @@ export default function MyFlashcards() {
         {error && (
           <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">
             {error}
+          </div>
+        )}
+
+        {offline && (
+          <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-800">
+            Can't reach Study2Gate right now — showing your flashcards saved on this phone.
           </div>
         )}
 

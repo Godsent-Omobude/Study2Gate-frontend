@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../../api/api";
 import { Eye, EyeOff } from "lucide-react";
 import { useSettings } from "./SettingsContext";
+import { clearFlashcardCache } from "../../utils/flashcardCache";
 
 export default function SettingsDanger() {
   const { showError, saving, setSaving } = useSettings();
@@ -30,6 +31,7 @@ export default function SettingsDanger() {
         },
       });
 
+      clearFlashcardCache();
       localStorage.clear();
       window.location.href = "/register";
     } catch (err) {

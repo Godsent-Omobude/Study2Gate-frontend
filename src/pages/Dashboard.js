@@ -10,6 +10,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import api from "../api/api";
+import { cacheFlashcardList } from "../utils/flashcardCache";
 import ReportModal from "../components/ReportModal";
 import OutOfCreditsModal from "../components/OutOfCreditsModal";
 import useProfilePicture from "../hooks/useProfilePicture";
@@ -107,6 +108,8 @@ export default function Dashboard() {
         : [];
       setFlashcardSetsTotal(sets.length);
       setFlashcardSets(sets.slice(0, 4));
+      // Saves every set on this phone so they can be opened offline later.
+      cacheFlashcardList(sets);
     } catch (error) {
       console.error("Unable to fetch flashcard sets.", error);
       setLoadError("Unable to load your flashcard sets right now. Please refresh the page.");
